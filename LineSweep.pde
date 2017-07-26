@@ -2,11 +2,13 @@
 //Stejara Dinulescu
 
 Table table;
-int picNum = 71;
+int picNum = 70;
 int picCount = 70;
 int count = 0;
-Input input = new Input("Test_Bi.png"); //"input" object
+int horzCount = 0;
+Input input = new Input("Test_A.png"); //"input" object
 String stringPoints = " ";
+String name = " ";
 
 void vertSweep(Input list) { //checks with line sweeps down the picture screen
   for (int j = 50; j < list.image.width; j += 50) { //where lines start down the picture
@@ -51,31 +53,36 @@ void horzSweep(Input list) { //checks with line sweeps across the picture screen
 
 void characterMatch() {
   for (int i = 0; i < picNum; i++) { //convert all strings in database to int arrays
-    String points = table.getString(i, "Points");
-    String[] items = points.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\s", "").split(",");
+    String verticalPoints = table.getString(i, "Points");
+    String horizontalPoints = table.getString(i, "HorzPoints");
+    String[] items = verticalPoints.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\s", "").split(",");
+    String[] horzItems = horizontalPoints.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\s", "").split(",");
     int[] results = new int[items.length];
+    int[] horzResults = new int[horzItems.length];
     stringToInt(results, items);
+    stringToInt(horzResults, horzItems);
     for (int a = 0; a < input.vPoints.size(); a++) { //checks for how many numbers match
       if (input.vPoints.get(a) == results[a]) { 
         count++; //increment this variable for every match
       }
     }
-    if (count >= 6) { 
-      println("Character Match: " + table.getString(i, "Name") + "; Count Number: " + count);
-    } else {
-      changeInput(1);
-      countMatches(results);
-      if (count >= 6) { 
-        println("Character Match: " + table.getString(i, "Name") + "; Count Number: " + count);
-      } else {
-        changeInput(-2);
-        countMatches(results);
-        if (count >= 6) { 
-          println("Character Match: " + table.getString(i, "Name") + "; Count Number: " + count);
-        }
+    for (int a = 0; a < input.hPoints.size(); a++) {
+      if (input.hPoints.get(a) == horzResults[a]) { 
+        horzCount++; //increment this variable for every match
       }
     }
+    if (count >= 6) { 
+      println("Vert Character Match: " + table.getString(i, "Name") + "; Count Number: " + count);
+  }
+    if (horzCount >= 6) {
+      println("Horz Character Match: " + table.getString(i, "Name") + "; Count Number: " + horzCount);
+    }
+    
+    if (count >= 6 && horzCount >= 6) {
+      name = table.getString(i, "Name");
+    }
     count = 0;
+    horzCount = 0;
   }
 }
 
@@ -85,38 +92,25 @@ void stringToInt(int[] array, String[] arr) {
   }
 }
 
-void countMatches(int[] array) {
-  for (int a = 0; a < input.vPoints.size(); a++) { //checks for how many numbers match
-    if (input.vNewPoints.get(a) == array[a]) { 
-      count++; //increment this variable for every match
-    }
-  }
-}
-
-void changeInput(int increment) {
-  input.vNewPoints.clear();
-  for (int b = 0; b < input.vPoints.size(); b++) {
-    input.vNewPoints.add(input.vPoints.get(b) + increment);
-  }
-  count = 0;
-}
-
 void setup() {
   size(500, 500);
   background(255);
   table = loadTable("Name.csv", "header");
   input.load();
   vertSweep(input);
-  stringPoints = stringPoints + input.vPoints;
+  stringPoints = "v:" + stringPoints + input.vPoints;
+  horzSweep(input);
+  stringPoints = stringPoints + " h: " + input.hPoints;
   println(stringPoints);
 
   /* //Table Setup
    table.setInt(picCount, "InPoint Count", input.inPoints);
    table.setInt(picCount, "OutPoint Count", input.outPoints);
    table.setString(picCount, "Points", stringPoints);
+   table.setString(picCount, "HorzPoints", stringPoints);
    saveTable(table, "data/Name.csv");
    */
-  //println(table.findRow(stringPoints, "Points").getString("PicNum")); -> NEED TO FIND A WAY TO IGNORE ONLY SPECIFIC NUMBERS
+  
   characterMatch();
   println("Done");
 }
@@ -128,8 +122,24 @@ void draw() {
   for (int i = 0; i < input.vInPoint.size(); i++) {
     point(input.vInPoint.get(i).x, input.vInPoint.get(i).y);
   }
-  stroke(0, 255, 0);
   for (int i = 0; i < input.vOutPoint.size(); i++) {
     point(input.vOutPoint.get(i).x, input.vOutPoint.get(i).y);
+  }
+  stroke(0, 255, 0);
+  for (int i = 0; i < input.hInPoint.size(); i++) {
+    point(input.hInPoint.get(i).x, input.hInPoint.get(i).y);
+  }
+  for (int i = 0; i < input.hOutPoint.size(); i++) {
+    point(input.hOutPoint.get(i).x, input.hOutPoint.get(i).y);
+  }
+  
+  
+  fill(0);
+  if (name == " ") {
+    textSize(25);
+    text("Character match: no absolute match", 10, 30);
+  } else {
+    textSize(25);
+    text("Character Match: " + name, 10, 30);
   }
 }

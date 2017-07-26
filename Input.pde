@@ -23,7 +23,6 @@ class Input {
     image.filter(THRESHOLD); //sets image to black and white, depending on whether it is above 0.5 threshold
     image.loadPixels(); //loads pixels to allow getting function
   }
-  
   void display() {
     image(image, 0, 0);
   }
