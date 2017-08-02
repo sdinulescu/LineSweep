@@ -3,15 +3,20 @@
 
 Table table;
 int picNum = 70;
-int picCount = 70;
+int picCount = 13;
 int count = 0;
 int horzCount = 0;
-Input input = new Input("Test_A.png"); //"input" object
-String stringPoints = " ";
+Input input = new Input("Test_Ge.png"); //"input" object
+String vstringPoints = " ";
+String hstringPoints = " ";
 String name = " ";
+int[] v = new int[picNum];
+int[] h = new int[picNum];
+int vlargest = 0;
+int hlargest = 0;
 
 void vertSweep(Input list) { //checks with line sweeps down the picture screen
-  for (int j = 50; j < list.image.width; j += 50) { //where lines start down the picture
+  for (int j = 10; j < list.image.width; j += 10) { //where lines start down the picture
     for (int i = 0; i < list.image.height - 1; i++) { //moves all the way down the picture from top to bottom
       if (list.image.get(j, i) != list.image.get(j, i+1)) { // two cases, in point or out point
         if (list.image.get(j, i+1) != color(255)) { //when it changes from white to black
@@ -31,7 +36,7 @@ void vertSweep(Input list) { //checks with line sweeps down the picture screen
 }
 
 void horzSweep(Input list) { //checks with line sweeps across the picture screen
-  for (int i = 50; i < list.image.height; i += 50) {
+  for (int i = 10; i < list.image.height; i += 10) {
     for (int j = 0; j < list.image.width-1; j++) {
       if (list.image.get(j, i) != list.image.get(j+1, i)) {
         if (list.image.get(j+1, i) != color(255)) { 
@@ -71,19 +76,33 @@ void characterMatch() {
         horzCount++; //increment this variable for every match
       }
     }
-    if (count >= 6) { 
-      println("Vert Character Match: " + table.getString(i, "Name") + "; Count Number: " + count);
-  }
-    if (horzCount >= 6) {
-      println("Horz Character Match: " + table.getString(i, "Name") + "; Count Number: " + horzCount);
-    }
-    
-    if (count >= 6 && horzCount >= 6) {
-      name = table.getString(i, "Name");
-    }
+    v[i] = count;
+    h[i] = horzCount;
     count = 0;
     horzCount = 0;
+  } 
+  for (int i = 0; i < picNum; i++) {
+    if (v[i] > vlargest) {
+      vlargest = v[i];
+    }
+    if (h[i] > hlargest) {
+      hlargest = h[i];
+    }
   }
+  
+  println("vlargest: " + vlargest);
+  println("hlargest: " + hlargest);
+  for (int i = 0; i < picNum; i++) {
+    if (vlargest == v[i] && hlargest == h[i]) {
+      println("Match: " + table.getString(i, "Name"));
+      name = table.getString(i, "Name");
+    } else if (vlargest == v[i]) {
+      println("V: " + table.getString(i, "Name"));
+    } else if (hlargest == h[i]) {
+      println("H: " + table.getString(i, "Name"));
+    }
+  }
+  
 }
 
 void stringToInt(int[] array, String[] arr) {
@@ -98,18 +117,18 @@ void setup() {
   table = loadTable("Name.csv", "header");
   input.load();
   vertSweep(input);
-  stringPoints = "v:" + stringPoints + input.vPoints;
+  vstringPoints = vstringPoints + input.vPoints;
+  //println("V: " + vstringPoints);
   horzSweep(input);
-  stringPoints = stringPoints + " h: " + input.hPoints;
-  println(stringPoints);
-
-  /* //Table Setup
-   table.setInt(picCount, "InPoint Count", input.inPoints);
-   table.setInt(picCount, "OutPoint Count", input.outPoints);
-   table.setString(picCount, "Points", stringPoints);
-   table.setString(picCount, "HorzPoints", stringPoints);
-   saveTable(table, "data/Name.csv");
-   */
+  hstringPoints = hstringPoints + input.hPoints;
+  //println("H: " + hstringPoints);
+  
+  //Table Setup
+  //table.setInt(picCount, "InPoint Count", input.vInPoints);
+  //table.setInt(picCount, "OutPoint Count", input.vOutPoints);
+  //table.setString(picCount, "Points", vstringPoints);
+  //table.setString(picCount, "HorzPoints", hstringPoints);
+  //saveTable(table, "data/Name.csv");
   
   characterMatch();
   println("Done");
