@@ -1,12 +1,14 @@
 //Optical Character Recognition, July
 //Stejara Dinulescu
+//Program analyzes characters based on a "line sweep" method. The number of in/out points per line are stored in a spot in an array, one vertically and one horizontally. This array is then matched with the arrays of the characters in the database. The highest match is considered to be when highest matches of the vertical and horizontal sweeps result in the same character. Highest vertical and horizontal character matches are also printed.
+//Not accurate all the time, false positives
 
 Table table; //database table
 int picNum = 70; //number of pictures in the hiragana database
 int picCount = 13; //used for cycling through database pictures when putting them in the "name" database .csv file
 int count = 0; //counts vertical in/out point matches
 int horzCount = 0; //counts horizontal in/out point matches
-Input input = new Input("Test_Ge.png"); //"input" object created
+Input input = new Input("Test_No.png"); //"input" object created
 String vstringPoints = " "; //used to convert the vertical in/out point array into a string for database
 String hstringPoints = " "; //used to convert the horizontal in/out point array into a string for database
 String name = " "; //variable to store name of a character match to draw later
